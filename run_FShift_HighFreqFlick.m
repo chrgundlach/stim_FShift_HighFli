@@ -34,14 +34,15 @@ p.targ_respwin          = [200 1000];           % time window for responses in m
 p.scr_num               = 1;                    % screen number
 p.scr_res               = [1920 1080];          % resolution
 p.scr_refrate           = 480;                  % refresh rate in Hz (e.g. 85)
-p.scr_color             = [0.05 0.05 0.05 1];      % default: [0.05 0.05 0.05 1]; ; color of screen [R G B Alpha]
+p.scr_color             = [0.2 0.2 0.2 1];      % default: [0.05 0.05 0.05 1]; ; color of screen [R G B Alpha]
 p.scr_imgmultipl        = 4;
 
 % some isoluminace parameters
 p.isol.TrlAdj           = 5;                    % number of trials used for isoluminance adjustment
 p.isol.MaxStd           = 10;                   % standard deviation tolerated
 p.isol.run              = false;                % isoluminance run?
-p.isol.override         = [0.0980 0.0392 0 1; 0 0.0596 0.1490 1;0 0.0745 0 1]; % these are the ones used for p.isol.bckgr = p.scr_color(1:3);
+% p.isol.override         = [0.0980 0.0392 0 1; 0 0.0596 0.1490 1;0 0.0745 0 1]; % these are the ones used for p.isol.bckgr = p.scr_color(1:3);
+p.isol.override         = [0.3529 0.1412 0 1; 0 0.2745 0.6863 1]; % these are the ones used for p.isol.bckgr = p.scr_color(1:3);
 
 % p.isol.bckgr            = p.scr_color(1:3)+0.2;          % isoluminant to background or different color?
 p.isol.bckgr            = p.scr_color;          % isoluminant to background or different color?
@@ -86,8 +87,7 @@ RDK.RDK(1).in_flag      = 0;                            % display inlet?
 RDK.RDK(1).in_col       = [];                           % inlet color for on off
 RDK.RDK(1).in_freq      = 0;                            % flicker frequency, frequency of a full "on"-"off"-cycle
 RDK.RDK(1).in_dot_size  = 6;                            % size of dots
-RDK.RDK(1).in_shape     = 1;                            % 1 = square RDK; 0 = ellipse/circle RDK;
-RDK.RDK(1).flicker_type = 'SSVEP';                % have only inlet or SSVEP flicker
+RDK.RDK(1).flicker_type = 'SSVEP';                      % have only inlet or SSVEP flicker
 
 
 p.stim.pos_shift        = [-255 0; 255 0];              % position shift in pixel for stimuli in periphery [255 = 7.8°] either left or right
@@ -99,8 +99,10 @@ p.stim.colors           = ...                           % "on" and "off" color
     [0 0.4 1 1; p.scr_color(1:3) 0]};
     % plot_colorwheel([1 0.4 0; 0 0.4 1; 0 1 0; 1 0 1],'ColorSpace','propixxrgb','LAB_L',50,'NumSegments',60,'AlphaColWheel',1,'LumBackground',100)
     % plot_colorwheel([1 0.4 0; 0 0.4 1],'ColorSpace','propixxrgb','LAB_L',50,'NumSegments',60,'AlphaColWheel',1,'LumBackground',100)
-p.stim.in_colors           = ...                           % "on" and "off" color for inlet (from background to to white)
-    [1 1 1 1; p.scr_color(1:3) 1];
+% p.stim.in_colors           = ...                           % "on" and "off" color for inlet (from background to to white)
+%     [1 1 1 1; p.scr_color(1:3) 1];
+p.stim.in_colors           = ...                           % "on" and "off" color for inlet (from background to to white) same brightnes as background on average
+    [0.4 0.4 0.4 1; 0 0 0  1];
 p.stim.color_names      = {'redish';'blue'};
  
 RDK.event.type          = 'globalmotion';       % event type global motion
@@ -119,8 +121,8 @@ p.trig.rec_start        = 253;                  % trigger to start recording
 p.trig.rec_stop         = 254;                  % trigger to stop recording
 p.trig.tr_start         = 77;                   % trial start; main experiment
 p.trig.tr_stop          = 88;                   % trial end; main experiment
-p.trig.tr_con_type      = [1 2 3 4 5 6 ]*10;        % condition type
-p.trig.type             = [1 2; 5 7];     % [first: target, distractor; second: target, distractor]
+p.trig.tr_con_type      = [1 2 3 4]*10;         % condition type
+p.trig.type             = [1 2; 5 7];           % [first: target, distractor; second: target, distractor]
 p.trig.button           = 150;                   % button press
 p.trig.event_type       = [201 202];              % target, distractor
 
@@ -129,7 +131,7 @@ p.trig.event_type       = [201 202];              % target, distractor
 % [4 104 204 114 124 214 224]; [5 105 205 115 125 215 225]; [6 106 206 116 126 216 226]}
 
 % logfiles
-p.log.path              = '/home/stimulationspc/matlab/User/christopher/stim_ssvep_fshift_perirr/logfiles/';
+p.log.path              = '/home/stimulation120/matlab/user/christopher/stim_FShift_HighFli/logfiles/';
 p.log.exp_name          = 'SSVEP_FShift_HighFreqFlickr';
 p.log.add               = '_a';
 
@@ -235,6 +237,13 @@ t.val = num2cell(p.stim.in_freqs{1}(randperm(2)));
 t.val = num2cell(p.stim.in_freqs{2}(randperm(2)));
 [RDK.RDK(7:8).in_freq] = t.val{:};
 
+% assign colors
+[RDK.RDK(:).col] = deal(RDK.RDK(:).col_init);
+t.col = repmat(p.stim.color_names,4,1);
+[RDK.RDK(:).colnames] = deal(t.col{:});
+p.isol.override = p.isol.override;
+p.isol.init_cols = cell2mat(cellfun(@(x) x(1,:),{RDK.RDK(:).col},'UniformOutput',false)');
+
 
 
 % % randomize colors? no
@@ -304,16 +313,23 @@ if flag_isolum == 1
      
     
     
-    % start isoluminance script only RGB output (no alpha)
+    % % start isoluminance script only RGB output (no alpha) [for all colors]
+    % [Col2Use] = PRPX_IsolCol_480_adj(...
+    %     [p.isol.bckgr(1:3); p.isol.init_cols(:,1:3)],...
+    %     p.isol.TrlAdj,...
+    %     p.isol.MaxStd,...
+    %     cellfun(@(x) x(1), {RDK.RDK.centershift})',...
+    %     RDK.RDK(1).size);
+    % start isoluminance script only RGB output (no alpha) [for only a few colors]
     [Col2Use] = PRPX_IsolCol_480_adj(...
-        [p.isol.bckgr(1:3); p.isol.init_cols(:,1:3)],...
+        [p.isol.bckgr(1:3); p.isol.init_cols(1:2,1:3)],...
         p.isol.TrlAdj,...
         p.isol.MaxStd,...
-        cellfun(@(x) x(1), {RDK.RDK.centershift})',...
-        RDK.RDK(1).size);
+        cellfun(@(x) x(1), {RDK.RDK(1:2).centershift})',...
+        [1 1].*max(RDK.RDK(1).size));
     
     for i_RDK = 1:numel(RDK.RDK)
-        RDK.RDK(i_RDK).col(1,:) = [Col2Use(1+i_RDK,:) 1];
+        RDK.RDK(i_RDK).col(1,:) = [Col2Use(2+mod(i_RDK+1,2),:) 1];
     end
     % index function execution
     p.isol.run = sprintf('originally run: %s',datestr(now));
@@ -335,7 +351,7 @@ else
     % specify options
     % option1: use default values
     isol.opt(1).available = true;
-    t.cols = cell2mat({RDK.RDK(:).col}');
+    t.cols = cell2mat({RDK.RDK(1:2).col}');
     isol.opt(1).colors = t.cols(1:2:end,:);
     isol.opt(1).text = sprintf('default: %s',sprintf('[%1.2f %1.2f %1.2f] ',isol.opt(1).colors(:,1:3)'));
     % option2: use isoluminance values of previously saved dataset
@@ -386,7 +402,7 @@ else
     Col2Use = isol.opt(isol.prompt.idx(key.keycode(IsoButtons(1:numel(isol.prompt.idx)))==1)).colors;
     % use selected colors
     for i_RDK = 1:numel(RDK.RDK)
-        RDK.RDK(i_RDK).col(1,:) = Col2Use(i_RDK,:);
+        RDK.RDK(i_RDK).col(1,:) = Col2Use(1+mod(i_RDK+1,2),:);
     end
     % index function execution
     switch isol.prompt.idx(key.keycode(IsoButtons(1:numel(isol.prompt.idx)))==1)
@@ -456,7 +472,7 @@ while flag_trainend == 0 % do training until ended
     rng(p.sub*i_bl,'v4')
     randmat.training{i_bl} = rand_FShift_HighFreqFlick(p, RDK,  1);
     [timing.training{i_bl},button_presses.training{i_bl},resp.training{i_bl}] = ...
-        pres_FShift_PerIrr(p, ps, key, RDK, randmat.training{i_bl}, i_bl,1);
+        pres_FShift_HighFreqFlick(p, ps, key, RDK, randmat.training{i_bl}, i_bl,1);
     save(sprintf('%s%s',p.log.path,p.filename),'timing','button_presses','resp','randmat','p', 'RDK')
     pres_feedback(resp.training{i_bl},p,ps, key,RDK)
     

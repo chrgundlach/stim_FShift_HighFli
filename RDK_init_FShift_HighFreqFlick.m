@@ -187,7 +187,7 @@ for r = 1:length(RDK.RDK)
     if RDK.RDK(r).flicker_type == "SSVEP_inlet"
         % double the number of dots later on
         colmat_r = zeros(size(RDK.RDK(r).col,2), RDK.RDK(r).num*2, frames.pertrial); %setup color matrix: RGB x dot number x frames
-        partidx = repmat([1 2],1,RDK.RDK(r).num); % index for colored ring or inlet
+        partidx = repmat([1 2],1,RDK.RDK(r).num); % index for colored ring or inlet (ring = 1; inlet = 2;)
     else
         colmat_r = zeros(size(RDK.RDK(r).col,2), RDK.RDK(r).num, frames.pertrial); %setup color matrix: RGB x dot number x frames
         partidx = repmat([1],1,RDK.RDK(r).num); % index for dot only
@@ -214,8 +214,14 @@ for r = 1:length(RDK.RDK)
                 colmat_r(:,t.cohidx2&partidx==i_part,w) = ...
                     repmat((weight(i_part,w)*trial.event.color(1,:) + (1-weight(i_part,w))*trial.event.color(2,:))',[1,sum(t.cohidx2)]); %Formula to compute weighted colour for every frame
             else
-                colmat_r(:,partidx==i_part,w) = ...
-                    repmat((weight(i_part,w)*RDK.RDK(r).col(1,:) + (1-weight(i_part,w))*RDK.RDK(r).col(2,:))',[1,RDK.RDK(r).num]); %Formula to compute weighted colour for every frame
+                if i_part == 1
+                    colmat_r(:,partidx==i_part,w) = ...
+                        repmat((weight(i_part,w)*RDK.RDK(r).col(1,:) + (1-weight(i_part,w))*RDK.RDK(r).col(2,:))',[1,RDK.RDK(r).num]); %Formula to compute weighted colour for every frame
+                else
+                    colmat_r(:,partidx==i_part,w) = ...
+                        repmat((weight(i_part,w)*RDK.RDK(r).in_col(1,:) + (1-weight(i_part,w))*RDK.RDK(r).in_col(2,:))',[1,RDK.RDK(r).num]); %Formula to compute weighted colour for every frame
+                
+                end
             end
         end
     end
@@ -325,7 +331,7 @@ for r = 1:length(RDK.RDK)
     dotmat_prs = [dotmat_pr(1,:,:)+RDK.RDK(r).centershift(1); dotmat_pr(2,:,:)+RDK.RDK(r).centershift(2)];
 
     % potentially include inlet
-    dotmat_r = nan(size(dotmat_prs).*[1 2 1]);
+    dotmat_r = nan(size(dotmat_prs).*[1 numel(unique(partidx)) 1]);
     for i_part = 1:numel(unique(partidx))
         dotmat_r(:,partidx==i_part,:) = dotmat_prs;
     end
@@ -358,6 +364,10 @@ for r = 1:length(RDK.RDK)
     
 end
 
+%% troubleshooting
+% figure; plot(squeeze(sum(colmat(:,1:85,:),[1,2]))); hold on; plot(squeeze(sum(colmat(:,(1:85)+85,:),[1,2]))); plot(squeeze(sum(colmat(:,(1:85)+85*2,:),[1,2])));plot(squeeze(sum(colmat(:,(1:85)+85*3,:),[1,2])))
+% figure; plot(squeeze(sum(colmat(:,1:85,:),[1,2]))); hold on; plot(squeeze(sum(colmat(:,(1:85)+85,:),[1,2])));
+% figure; plot(lummat'); xlim([1 100])
 %% Shuffle
 
 %shuffle the dots of the different RDKs, so that the lastly drawn RDK is not systematically overlapping the others

@@ -157,7 +157,11 @@ for i_tr = 1:numel(trialindex)
     for i_fl = 1:frames.flips
         %% Drawing
         % RDK
+        % draw squares
         Screen('DrawDots', ps.window, dotmat(:,:,i_fl), dotsize(:,i_fl), colmat(:,:,i_fl), ps.center, 0, 0);
+        % or draw circles
+        % Screen('DrawDots', ps.window, dotmat(:,:,i_fl), dotsize(:,i_fl), colmat(:,:,i_fl), ps.center, 2, 0);
+         
         % fixation cross
         Screen('DrawLines', ps.window, p.crs.lines, p.crs.width, colmat_cr(:,1,i_fl)', ps.center, 0);
         
