@@ -112,7 +112,7 @@ p.stim.in_colors           = ...                           % "on" and "off" colo
 
 p.stim.in_colors           = ...                           % "on" and "off" color for inlet (from background to to white) same brightnes as background on average
     {[0.6811    0.3167    0.0401 1; 0 0 0  1]; ... % color lightness flicker
-    [0.0956    0.4931    1.0752 1; 0 0 0  1]};
+    [0.4 0.4 0.4 1; 0 0 0  1]};
 % how to pick colors: 
 % xyz2rgb_custom(lab2xyz([70 22.200 65.374]) ,[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290])
 %       r: [0.6811    0.3167    0.0401]
@@ -238,9 +238,7 @@ t.ids = num2cell(1:numel(RDK.RDK));
 [RDK.RDK(:).id] = t.ids{:};
 
 % assign inlet color
-% [RDK.RDK(5:8).in_col] = deal(p.stim.in_colors);
-t.col = repmat(p.stim.in_colors,2,1);
-[RDK.RDK(5:8).in_col] = deal(t.col{:});
+[RDK.RDK(5:8).in_col] = deal(p.stim.in_colors); 
 
 
 % randomize frequencies for conventional RDKs
