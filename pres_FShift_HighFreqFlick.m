@@ -115,7 +115,7 @@ for i_tr = 1:numel(trialindex)
     doutWave(size(colmat_cr,3)*p.scr_imgmultipl+1) = p.trig.tr_stop;
     % condition trigger
     resp(i_tr).triggernum = ...
-        p.trig.tr_con_type(resp(i_tr).condition); % condition 1 2 3 4 5 6
+        p.trig.tr_con_type(resp(i_tr).condition); % condition 1 2 3 4
     try resp(i_tr).triggernum = resp(i_tr).triggernum + ...
             p.trig.type(1,resp(i_tr).eventtype(1)); % first event? [target or distractor]
     end

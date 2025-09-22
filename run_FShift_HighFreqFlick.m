@@ -12,6 +12,39 @@ function [] = run_FShift_HighFreqFlick(sub,flag_training, flag_isolum, flag_bloc
 % log
 %   - inlay flicker between background color and white or RDK color and white?
 %   - fixed position or vary across participants?
+%   - trial by trial vs block
+%   - decide for colors: 
+% version 1 [blue + red]
+%       p.scr_color             = [0.2 0.2 0.2 1];      % default: [0.05 0.05 0.05 1]; ; color of screen [R G B Alpha]
+%       p.isol.override         = [0.3529 0.1412 0 1; 0 0.2745 0.6863 1]; % these are the ones used for p.isol.bckgr = p.scr_color(1:3);
+%       p.stim.colors           = ...                           % "on" and "off" color
+%           {[1 0.4 0 1; p.scr_color(1:3) 0];...
+%           [0 0.4 1 1; p.scr_color(1:3) 0]};
+%       p.stim.in_colors           = ...                           % "on" and "off" color for inlet (from background to to white) same brightnes as background on average
+%           {[0.6811    0.3167    0.0401 1; 0 0 0  1]; ... % color lightness flicker
+%           [0.0956    0.4931    1.0752 1; 0 0 0  1]};
+
+% version 2 [green + red]
+%       p.scr_color             = [0.2 0.2 0.2 1];      % default: [0.05 0.05 0.05 1]; ; color of screen [R G B Alpha]
+%       p.isol.override         = [0.3529 0.1412 0 1; 0 0.2745 0.6863 1]; % these are the ones used for p.isol.bckgr = p.scr_color(1:3);
+%       p.stim.colors           = ...                           % "on" and "off" color
+%           {[1 0.4 0 1; p.scr_color(1:3) 0];...
+%           [0 0.4 1 1; p.scr_color(1:3) 0]};
+%       p.stim.in_colors           = ...                           % "on" and "off" color for inlet (from background to to white) same brightnes as background on average
+%           {[0.6811    0.3167    0.0401 1; 0 0 0  1]; ... % color lightness flicker
+%           [0.0956    0.4931    1.0752 1; 0 0 0  1]};
+
+
+% version 3 [green + red] color flicker with lum only changes from 20 to 52 to 67; not affecting hue + chroma
+%       p.scr_color             = [0.2 0.2 0.2 1];      % default: [0.05 0.05 0.05 1]; ; color of screen [R G B Alpha]
+%       p.isol.override         = [0.432577043497251	0.114218717428981	0.0367378722759770 1; 0.0838243660856890	0.261212705167328	0.0719122665885031 1]; % these are the ones used for p.isol.bckgr = p.scr_color(1:3);
+%       p.stim.colors           = ...                           % "on" and "off" color
+%           {[0.432577043497251	0.114218717428981	0.0367378722759770 1; p.scr_color(1:3) 0];... % start with close to isoluminant
+%           [0.0838243660856890	0.261212705167328	0.0719122665885031 1; p.scr_color(1:3) 0]};
+%       p.stim.in_colors           = ...                           % "on" and "off" color for inlet (from background to to white) same brightnes as background on average
+%           {[0.6811    0.3167    0.0401 1; 0 0 0  1]; ... % color lightness flicker
+%           [0.0956    0.4931    1.0752 1; 0 0 0  1]};
+
 
 
 % Christopher Gundlach, Maria Dotzer,  Leipzig, 2025,2024,2023,2021,2020
@@ -42,12 +75,26 @@ p.isol.TrlAdj           = 5;                    % number of trials used for isol
 p.isol.MaxStd           = 10;                   % standard deviation tolerated
 p.isol.run              = false;                % isoluminance run?
 % p.isol.override         = [0.0980 0.0392 0 1; 0 0.0596 0.1490 1;0 0.0745 0 1]; % these are the ones used for p.isol.bckgr = p.scr_color(1:3);
-p.isol.override         = [0.3529 0.1412 0 1; 0 0.2745 0.6863 1]; % these are the ones used for p.isol.bckgr = p.scr_color(1:3);
 
-% plot_colorwheel([0.3529 0.1412 0; 0 0.2745 0.6863],'ColorSpace','propixxrgb','LAB_L',50,'NumSegments',60,'AlphaColWheel',1,'LumBackground',100,'disp_LAB_vals',true)
+% p.isol.override         = [0.3529 0.1412 0 1; 0 0.2745 0.6863 1]; % these are the ones used for p.isol.bckgr = p.scr_color(1:3); [blue + red]
+% % plot_colorwheel([0.3529 0.1412 0; 0 0.2745 0.6863],'ColorSpace','propixxrgb','LAB_L',50,'NumSegments',60,'AlphaColWheel',1,'LumBackground',100,'disp_LAB_vals',true)
+% % color values:
+% % Colors2plot: [0.353 0.141 0.000]; CIE L*a*b: [51.255 22.200 65.374]; color hue in °: [71.243]
+% % Colors2plot: [0.000 0.275 0.686]; CIE L*a*b: [53.586 -12.206 -52.665]; color hue in °: [256.951]
+
+% higher chroma hue: issues with color inlet flicker
+p.isol.override         = [0.555046478490071	0.0641403020875463	0.00301903463905954 1; 0.0365675725522330	0.284593313001134	0.0286553822090133 1]; % these are the ones used for p.isol.bckgr = p.scr_color(1:3); [red + green]
+% plot_colorwheel([0.555046478490071	0.0641403020875463	0.00301903463905954; 0.0365675725522330	0.284593313001134	0.0286553822090133],'ColorSpace','propixxrgb','LAB_L',50,'NumSegments',60,'AlphaColWheel',1,'LumBackground',100,'disp_LAB_vals',true)
 % color values:
-% Colors2plot: [0.353 0.141 0.000]; CIE L*a*b: [51.255 22.200 65.374]; color hue in °: [71.243]
-% Colors2plot: [0.000 0.275 0.686]; CIE L*a*b: [53.586 -12.206 -52.665]; color hue in °: [256.951]
+% Colors2plot: [0.555 0.064 0.003]; CIE L*a*b: [52.000 61.560 68.369]; color hue in °: [48.000]
+% Colors2plot: [0.037 0.285 0.029]; CIE L*a*b: [52.000 -81.231 43.191]; color hue in °: [152.000]
+
+% lower chroma hue: no issues with color inlet flicker; same hue + chroma possible for lum color flicker
+p.isol.override         = [0.432577043497251	0.114218717428981	0.0367378722759770 1; 0.0838243660856890	0.261212705167328	0.0719122665885031 1]; % these are the ones used for p.isol.bckgr = p.scr_color(1:3); [red + green]
+% plot_colorwheel([0.432577043497251	0.114218717428981	0.0367378722759770; 0.0838243660856890	0.261212705167328	0.0719122665885031],'ColorSpace','propixxrgb','LAB_L',50,'NumSegments',60,'AlphaColWheel',1,'LumBackground',100,'disp_LAB_vals',true)
+% color values:
+% Colors2plot: [0.433 0.114 0.037]; CIE L*a*b: [52.000 40.148 44.589]; color hue in °: [48.000]
+% Colors2plot: [0.084 0.261 0.072]; CIE L*a*b: [52.000 -52.977 28.168]; color hue in °: [152.000]
 
 % p.isol.bckgr            = p.scr_color(1:3)+0.2;          % isoluminant to background or different color?
 p.isol.bckgr            = p.scr_color;          % isoluminant to background or different color?
@@ -99,25 +146,85 @@ p.stim.pos_shift        = [-255 0; 255 0];              % position shift in pixe
 % p.stim.freqs            = {[26 29];[17 20 23]};         % frequencies of {[center1 center2];[peri1 peri2 peri3]}
 p.stim.freqs            = {[20 23];[14 17]};            % conventional frequencies of {[center1 center2];[peri1 peri2]}
 p.stim.in_freqs         = {[68 71];[62 65]};            % high inlet frequencies of {[center1 center2];[peri1 peri2]}
-p.stim.colors           = ...                           % "on" and "off" color
-    {[1 0.4 0 1; p.scr_color(1:3) 0];...
-    [0 0.4 1 1; p.scr_color(1:3) 0]};
-    % plot_colorwheel([1 0.4 0; 0 0.4 1; 0 1 0; 1 0 1],'ColorSpace','propixxrgb','LAB_L',50,'NumSegments',60,'AlphaColWheel',1,'LumBackground',100)
-    % plot_colorwheel([1 0.4 0; 0 0.4 1],'ColorSpace','propixxrgb','LAB_L',50,'NumSegments',60,'AlphaColWheel',1,'LumBackground',100)
-% p.stim.in_colors           = ...                           % "on" and "off" color for inlet (from background to to white)
-%     [1 1 1 1; p.scr_color(1:3) 1];
-p.stim.in_colors           = ...                           % "on" and "off" color for inlet (from background to to white) same brightnes as background on average
-    {[0.4 0.4 0.4 1; 0 0 0  1]; ... % grey background luminance flicker
-    [0.4 0.4 0.4 1; 0 0 0  1]};
+% p.stim.in_freqs         = {[68 71]./2;[62 65]./2};            % high inlet frequencies of {[center1 center2];[peri1 peri2]}
+% p.stim.colors           = ...                           % "on" and "off" color [red + blue]
+%     {[1 0.4 0 1; p.scr_color(1:3) 0];...
+%     [0 0.4 1 1; p.scr_color(1:3) 0]};
+%     % plot_colorwheel([1 0.4 0; 0 0.4 1],'ColorSpace','propixxrgb','LAB_L',50,'NumSegments',60,'AlphaColWheel',1,'LumBackground',100,'disp_LAB_vals',true)
+% p.stim.colors           = ...                           % "on" and "off" color [red + green] bright!
+%     {[1 0.2 0.044 1; p.scr_color(1:3) 0];...
+%     [0.335 1 0.289 1; p.scr_color(1:3) 0]};
+%     % plot_colorwheel([1 0.2 0.044; 0.335 1 0.289],'ColorSpace','propixxrgb','LAB_L',50,'NumSegments',60,'AlphaColWheel',1,'LumBackground',100,'disp_LAB_vals',true)
+% p.stim.colors           = ...                           % "on" and "off" color [red + green] almost isoluminant!
+%     {[0.555046478490071	0.0641403020875463	0.00301903463905954 1; p.scr_color(1:3) 0];...
+%     [0.0365675725522330	0.284593313001134	0.0286553822090133 1; p.scr_color(1:3) 0]};
+% almost isoluminant
+p.stim.colors           = ...                           % "on" and "off" color version 3 [green + red] color flicker with lum only changes from 20 to 52 to 67; not affecting hue + chroma
+    {[0.432577043497251	0.114218717428981	0.0367378722759770 1; p.scr_color(1:3) 0];... % start with close to isoluminant
+    [0.0838243660856890	0.261212705167328	0.0719122665885031 1; p.scr_color(1:3) 0]};
 
+
+
+p.stim.in_colors           = ...                           % "on" and "off" color for inlet (from background to to white)
+    {[1 1 1 1; p.scr_color(1:3) 1];
+    [1 1 1 1; p.scr_color(1:3) 1]};
+p.stim.in_colors           = ...                           % "on" and "off" color for inlet (from background to to white)
+    {[1 1 1 1; 0 0 0 1];
+    [1 1 1 1; 0 0 0 1]};
+% p.stim.in_colors           = ...                           % "on" and "off" color for inlet (from background to to white) same brightnes as background on average
+%     {[0.4 0.4 0.4 1; 0 0 0  1]; ... % grey background luminance flicker
+%     [0.4 0.4 0.4 1; 0 0 0  1]};
+
+% % red + blue
+% p.stim.in_colors           = ...                           % "on" and "off" color for inlet (from background to to white) same brightnes as background on average
+%     {[0.6811    0.3167    0.0401 1; 0 0 0  1]; ... % color lightness flicker
+%     [0.0956    0.4931    1.0752 1; 0 0 0  1]};
+% % how to pick colors: 
+% % xyz2rgb_custom(lab2xyz([70 22.200 65.374]) ,[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290])
+% %       r: [0.6811    0.3167    0.0401]
+% % xyz2rgb_custom(lab2xyz([70 -12.206 -52.665]) ,[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290])
+% %       b: [0.0956    0.4931    1.0752]
+
+% red + green
 p.stim.in_colors           = ...                           % "on" and "off" color for inlet (from background to to white) same brightnes as background on average
-    {[0.6811    0.3167    0.0401 1; 0 0 0  1]; ... % color lightness flicker
-    [0.0956    0.4931    1.0752 1; 0 0 0  1]};
+    {[0.972951140306817	0.191542693705368	0.0400701686302725 1; 0 0 0  1]; ... % color lightness flicker
+    [0.129054518659821	0.548558180641705	0.106795880193875 1; 0 0 0  1]};
 % how to pick colors: 
-% xyz2rgb_custom(lab2xyz([70 22.200 65.374]) ,[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290])
-%       r: [0.6811    0.3167    0.0401]
-% xyz2rgb_custom(lab2xyz([70 -12.206 -52.665]) ,[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290])
-%       b: [0.0956    0.4931    1.0752]
+% xyz2rgb_custom(lab2xyz([70	61.5600157850150	68.3693239439203]) ,[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290])
+%       r: [0.972951140306817	0.191542693705368	0.0400701686302725]
+% xyz2rgb_custom(lab2xyz([70	-81.2311785430213	43.1913837763020]) ,[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290])
+%       g: [0.129054518659821	0.548558180641705	0.106795880193875]
+
+
+% red + green [symmetric around 50 L value doesn't work]: rather 20 to 67
+p.stim.in_colors           = ...                           % "on" and "off" color for inlet (from background to to white) same brightnes as background on average
+    {[0.8929    0.1647    0.0308 1; 0.1430   0 0  1]; ... % color lightness flicker
+    [ 0.1089    0.4967    0.0894 1; 0	0.0488	0  1]};
+% how to pick colors: 
+% xyz2rgb_custom(lab2xyz([67	61.5600157850150	68.3693239439203]) ,[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290])
+%       r_bright: [0.8929    0.1647    0.0308]
+% xyz2rgb_custom(lab2xyz([67	-81.2311785430213	43.1913837763020]) ,[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290])
+%       g_brigh: [ 0.1089    0.4967    0.0894]
+% xyz2rgb_custom(lab2xyz([20	61.5600157850150	68.3693239439203]) ,[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290])
+%       r_dark: [0.1430   0 0]
+% xyz2rgb_custom(lab2xyz([20	-81.2311785430213	43.1913837763020]) ,[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290])
+%       g_dark: [0	0.0488 0]
+
+
+% red + green [symmetric around 50 L value doesn't work]: rather 20 to 67 version 3: no chroma and/or hue changes
+p.stim.in_colors           = ...                           % "on" and "off" color for inlet (from background to to white) same brightnes as background on average
+    {[0.7120    0.2373    0.1008 1; 0.0978    0.0036   0  1]; ... % color lightness flicker
+    [ 0.1858    0.4583    0.1642 1;0.0019    0.0440    0.0003  1]};
+% how to pick colors: 
+% xyz2rgb_custom(lab2xyz([67 40.148 44.589]) ,[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290])
+%       r_bright: [0.7120    0.2373    0.1008]
+% xyz2rgb_custom(lab2xyz([67 -52.977 28.168]) ,[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290])
+%       g_brigh: [ 0.1858    0.4583    0.1642]
+% xyz2rgb_custom(lab2xyz([20	40.148 44.589]) ,[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290])
+%       r_dark: [0.0978    0.0036   0]
+% xyz2rgb_custom(lab2xyz([20	-52.977 28.168]) ,[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290])
+%       g_dark: [0.0019    0.0440    0.0003]
+
 
 p.stim.color_names      = {'redish';'blue'};
  
@@ -127,7 +234,7 @@ RDK.event.coherence     = .4;                   % percentage of coherently movin
 RDK.event.direction     = RDK.RDK(1).mov_dir;   % movement directions for events
 
 % fixation cross
-p.crs.color             = [0.4 0.4 0.4 1];      % color of fixation cross
+p.crs.color             = [0.6 0.6 0.6 1];      % color of fixation cross
 p.crs.size              = 12;                   % size of fixation
 p.crs.width             = 2;                    % width of fixation cross
 p.crs.cutout            = 0;                    % 1 = no dots close to fixation cross
