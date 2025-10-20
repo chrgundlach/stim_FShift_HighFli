@@ -40,7 +40,7 @@ t.mat = repmat(p.stim.condition,conmat.totaltrials/numel(p.stim.condition),1);
 conmat.mats.condition = t.mat(:)';
 
 % add index for RDKs to be presented
-t.mat = [1 2 3 4; 1 2 3 4; 5 6 7 8; 5 6 7 8; 9 10 11 12; 9 10 11 12];
+t.mat = [1 2 3 4; 1 2 3 4; 5 6 7 8; 5 6 7 8];
 conmat.mats.rdkspresented = nan(4,conmat.totaltrials);
 for i_con = 1:numel(p.stim.condition)
     conmat.mats.rdkspresented(:,conmat.mats.condition==i_con) = repmat( ...
@@ -86,7 +86,7 @@ end
 
 
 % determine event RDK
-t.mat = [1 2; 2 1;5 6; 6 5; 9 10; 10 9]; % which RDKs?
+t.mat = [1 2; 2 1;5 6; 6 5]; % which RDKs?
 conmat.mats.eventRDK = nan(max(p.stim.eventnum),conmat.totaltrials);
 for i_con = 1:numel(p.stim.condition)
     % targets

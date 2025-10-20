@@ -183,7 +183,7 @@ p.trig.rec_start        = 253;                  % trigger to start recording
 p.trig.rec_stop         = 254;                  % trigger to stop recording
 p.trig.tr_start         = 77;                   % trial start; main experiment
 p.trig.tr_stop          = 88;                   % trial end; main experiment
-p.trig.tr_con_type      = [1 2 3 4 5 6]*10;     % condition type
+p.trig.tr_con_type      = [1 2 3 4]*10;         % condition type
 p.trig.type             = [1 2; 5 7];           % [first: target, distractor; second: target, distractor]
 p.trig.button           = 150;                   % button press
 p.trig.event_type       = [201 202];              % target, distractor
@@ -285,10 +285,10 @@ t.ids = num2cell(1:numel(RDK.RDK));
 
 % assign inlet color
 % [RDK.RDK(5:8).in_col] = deal(p.stim.in_colors);
-t.col = repmat(p.stim.in_colors(:,1),2,1); % inlet color flicker
+t.col = repmat(p.stim.in_colors(:,1),2,1); 
 [RDK.RDK(5:8).in_col] = deal(t.col{:});
-t.col = repmat(p.stim.in_colors(:,2),2,1); % inlet bw flicker
-[RDK.RDK(9:12).in_col] = deal(t.col{:});
+t.col = repmat(p.stim.in_colors(:,1),2,1);
+[RDK.RDK(5:8).in_col] = deal(t.col{:});
 
 
 % randomize frequencies for conventional RDKs
@@ -297,22 +297,15 @@ t.val = num2cell(p.stim.freqs{1}(randperm(2)));
 t.val = num2cell(p.stim.freqs{2}(randperm(2)));
 [RDK.RDK(3:4).freq] = t.val{:};
 
-% randomize frequencies for inlet colored flickering RDKs
+% randomize frequencies for inlet flickering RDKs
 t.val = num2cell(p.stim.in_freqs{1}(randperm(2)));
 [RDK.RDK(5:6).in_freq] = t.val{:};
 t.val = num2cell(p.stim.in_freqs{2}(randperm(2)));
 [RDK.RDK(7:8).in_freq] = t.val{:};
 
-% randomize frequencies for inlet colored flickering RDKs
-t.val = num2cell(p.stim.in_freqs{1}(randperm(2)));
-[RDK.RDK(9:10).in_freq] = t.val{:};
-t.val = num2cell(p.stim.in_freqs{2}(randperm(2)));
-[RDK.RDK(11:12).in_freq] = t.val{:};
-
-
 % assign colors
 [RDK.RDK(:).col] = deal(RDK.RDK(:).col_init);
-t.col = repmat(p.stim.color_names,6,1);
+t.col = repmat(p.stim.color_names,4,1);
 [RDK.RDK(:).colnames] = deal(t.col{:});
 p.isol.override = p.isol.override;
 p.isol.init_cols = cell2mat(cellfun(@(x) x(1,:),{RDK.RDK(:).col},'UniformOutput',false)');
@@ -329,7 +322,7 @@ p.isol.init_cols = cell2mat(cellfun(@(x) x(1,:),{RDK.RDK(:).col},'UniformOutput'
 % p.isol.init_cols = cell2mat(cellfun(@(x) x(1,:),{RDK.RDK(:).col},'UniformOutput',false)');
 
 % random position shift in periphery
-[RDK.RDK([3:4 7:8 11:12]).centershift] = deal(t.pos(p.sub,:));
+[RDK.RDK([3:4 7:8]).centershift] = deal(t.pos(p.sub,:));
 
 % initialize blank variables
 timing = []; button_presses = []; resp = []; randmat = [];

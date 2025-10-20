@@ -8,13 +8,33 @@ function [] = run_FShift_HighFreqFlick(sub,flag_training, flag_isolum, flag_bloc
 %           e.g. run_FShift_PerIrr(1,1, 0, 1)
 % 
 % current version includes two irrelevant colors in periphery
-% three different RDK sets:
-%       1. conventional flicker
-%       2. high frequency flicker with colored inlet
-%       3. high frequency flicker with black and white inlet
-
 %
 % log
+%   - inlay flicker between background color and white or RDK color and white?
+%   - fixed position or vary across participants?
+%   - trial by trial vs block
+%   - decide for colors: 
+% version 1 [blue + red]
+%       p.scr_color             = [0.2 0.2 0.2 1];      % default: [0.05 0.05 0.05 1]; ; color of screen [R G B Alpha]
+%       p.isol.override         = [0.3529 0.1412 0 1; 0 0.2745 0.6863 1]; % these are the ones used for p.isol.bckgr = p.scr_color(1:3);
+%       p.stim.colors           = ...                           % "on" and "off" color
+%           {[1 0.4 0 1; p.scr_color(1:3) 0];...
+%           [0 0.4 1 1; p.scr_color(1:3) 0]};
+%       p.stim.in_colors           = ...                           % "on" and "off" color for inlet (from background to to white) same brightnes as background on average
+%           {[0.6811    0.3167    0.0401 1; 0 0 0  1]; ... % color lightness flicker
+%           [0.0956    0.4931    1.0752 1; 0 0 0  1]};
+
+% version 2 [green + red]
+%       p.scr_color             = [0.2 0.2 0.2 1];      % default: [0.05 0.05 0.05 1]; ; color of screen [R G B Alpha]
+%       p.isol.override         = [0.3529 0.1412 0 1; 0 0.2745 0.6863 1]; % these are the ones used for p.isol.bckgr = p.scr_color(1:3);
+%       p.stim.colors           = ...                           % "on" and "off" color
+%           {[1 0.4 0 1; p.scr_color(1:3) 0];...
+%           [0 0.4 1 1; p.scr_color(1:3) 0]};
+%       p.stim.in_colors           = ...                           % "on" and "off" color for inlet (from background to to white) same brightnes as background on average
+%           {[0.6811    0.3167    0.0401 1; 0 0 0  1]; ... % color lightness flicker
+%           [0.0956    0.4931    1.0752 1; 0 0 0  1]};
+
+
 % version 3 [green + red] color flicker with lum only changes from 20 to 52 to 67; not affecting hue + chroma
 %       p.scr_color             = [0.2 0.2 0.2 1];      % default: [0.05 0.05 0.05 1]; ; color of screen [R G B Alpha]
 %       p.isol.override         = [0.432577043497251	0.114218717428981	0.0367378722759770 1; 0.0838243660856890	0.261212705167328	0.0719122665885031 1]; % these are the ones used for p.isol.bckgr = p.scr_color(1:3);
@@ -54,7 +74,20 @@ p.scr_imgmultipl        = 4;
 p.isol.TrlAdj           = 5;                    % number of trials used for isoluminance adjustment
 p.isol.MaxStd           = 10;                   % standard deviation tolerated
 p.isol.run              = false;                % isoluminance run?
+% p.isol.override         = [0.0980 0.0392 0 1; 0 0.0596 0.1490 1;0 0.0745 0 1]; % these are the ones used for p.isol.bckgr = p.scr_color(1:3);
 
+% p.isol.override         = [0.3529 0.1412 0 1; 0 0.2745 0.6863 1]; % these are the ones used for p.isol.bckgr = p.scr_color(1:3); [blue + red]
+% % plot_colorwheel([0.3529 0.1412 0; 0 0.2745 0.6863],'ColorSpace','propixxrgb','LAB_L',50,'NumSegments',60,'AlphaColWheel',1,'LumBackground',100,'disp_LAB_vals',true)
+% % color values:
+% % Colors2plot: [0.353 0.141 0.000]; CIE L*a*b: [51.255 22.200 65.374]; color hue in °: [71.243]
+% % Colors2plot: [0.000 0.275 0.686]; CIE L*a*b: [53.586 -12.206 -52.665]; color hue in °: [256.951]
+
+% higher chroma hue: issues with color inlet flicker
+p.isol.override         = [0.555046478490071	0.0641403020875463	0.00301903463905954 1; 0.0365675725522330	0.284593313001134	0.0286553822090133 1]; % these are the ones used for p.isol.bckgr = p.scr_color(1:3); [red + green]
+% plot_colorwheel([0.555046478490071	0.0641403020875463	0.00301903463905954; 0.0365675725522330	0.284593313001134	0.0286553822090133],'ColorSpace','propixxrgb','LAB_L',50,'NumSegments',60,'AlphaColWheel',1,'LumBackground',100,'disp_LAB_vals',true)
+% color values:
+% Colors2plot: [0.555 0.064 0.003]; CIE L*a*b: [52.000 61.560 68.369]; color hue in °: [48.000]
+% Colors2plot: [0.037 0.285 0.029]; CIE L*a*b: [52.000 -81.231 43.191]; color hue in °: [152.000]
 
 % lower chroma hue: no issues with color inlet flicker; same hue + chroma possible for lum color flicker
 p.isol.override         = [0.432577043497251	0.114218717428981	0.0367378722759770 1; 0.0838243660856890	0.261212705167328	0.0719122665885031 1]; % these are the ones used for p.isol.bckgr = p.scr_color(1:3); [red + green]
@@ -68,17 +101,14 @@ p.isol.bckgr            = p.scr_color;          % isoluminant to background or d
 
 
 % stimplan
-p.stim.condition        = [1 2 3 4 5 6];
-p.stim.RDKcenter        = [1 2; 1 2; ... % defines which RDK are shown in center [1 2 = convent. RDKs; 5 6 = inlet colored flicker; ; 9 10 = inlet bw flicker]
-                            5 6; 5 6; ...
-                            9 10; 9 10]; 
-p.stim.RDKperi          =  [3 4; 3 4; ...   % defines which RDK are shown in the periphery [3 4 = convent. RDKs; 7 8 = inlet colored flicker; 11 12 = inlet bw flicker]
-                            7 8; 7 8; ...
-                            11 12; 11 12];
-p.stim.RDK2attend       = [1 2 5 6 9 10];        % defines which RDK to attend in which condition
+p.stim.condition        = [1 2 3 4];
+p.stim.RDKcenter        = [1 2; 1 2; 5 6; 5 6]; % defines which RDK are shown in center [1 2 = convent. RDKs; 5 6 = inlet flicker]
+p.stim.RDKperi          =  [3 4; 3 4; ...   % defines which RDK are shown in the periphery [3 4 = convent. RDKs; 7 8 = inlet flicker]
+                            7 8; 7 8];
+p.stim.RDK2attend       = [1 2 5 6];        % defines which RDK to attend in which condition
 p.stim.eventnum_e       = [0 0 0 0 1 2];    % ratio of eventnumbers for experiment
 p.stim.eventnum_t       = [0 1 2];          % ratio of eventnumbers for training
-p.stim.con_repeats      = [25 25 25 25 25 25];    % trial number/repeats for each eventnum and condition
+p.stim.con_repeats      = [25 25 25 25];    % trial number/repeats for each eventnum and condition
 p.stim.con_repeats_t    = [1];              % trial number/repeats for each eventnum and condition
 p.stim.trialnum_t       = 20;               % trial number in training
 p.stim.time_postcue     = 2;                % post.cue time in s
@@ -145,15 +175,46 @@ p.stim.in_colors           = ...                           % "on" and "off" colo
 %     {[0.4 0.4 0.4 1; 0 0 0  1]; ... % grey background luminance flicker
 %     [0.4 0.4 0.4 1; 0 0 0  1]};
 
+% % red + blue
+% p.stim.in_colors           = ...                           % "on" and "off" color for inlet (from background to to white) same brightnes as background on average
+%     {[0.6811    0.3167    0.0401 1; 0 0 0  1]; ... % color lightness flicker
+%     [0.0956    0.4931    1.0752 1; 0 0 0  1]};
+% % how to pick colors: 
+% % xyz2rgb_custom(lab2xyz([70 22.200 65.374]) ,[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290])
+% %       r: [0.6811    0.3167    0.0401]
+% % xyz2rgb_custom(lab2xyz([70 -12.206 -52.665]) ,[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290])
+% %       b: [0.0956    0.4931    1.0752]
+
+% red + green
+p.stim.in_colors           = ...                           % "on" and "off" color for inlet (from background to to white) same brightnes as background on average
+    {[0.972951140306817	0.191542693705368	0.0400701686302725 1; 0 0 0  1]; ... % color lightness flicker
+    [0.129054518659821	0.548558180641705	0.106795880193875 1; 0 0 0  1]};
+% how to pick colors: 
+% xyz2rgb_custom(lab2xyz([70	61.5600157850150	68.3693239439203]) ,[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290])
+%       r: [0.972951140306817	0.191542693705368	0.0400701686302725]
+% xyz2rgb_custom(lab2xyz([70	-81.2311785430213	43.1913837763020]) ,[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290])
+%       g: [0.129054518659821	0.548558180641705	0.106795880193875]
+
+
+% red + green [symmetric around 50 L value doesn't work]: rather 20 to 67
+p.stim.in_colors           = ...                           % "on" and "off" color for inlet (from background to to white) same brightnes as background on average
+    {[0.8929    0.1647    0.0308 1; 0.1430   0 0  1]; ... % color lightness flicker
+    [ 0.1089    0.4967    0.0894 1; 0	0.0488	0  1]};
+% how to pick colors: 
+% xyz2rgb_custom(lab2xyz([67	61.5600157850150	68.3693239439203]) ,[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290])
+%       r_bright: [0.8929    0.1647    0.0308]
+% xyz2rgb_custom(lab2xyz([67	-81.2311785430213	43.1913837763020]) ,[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290])
+%       g_brigh: [ 0.1089    0.4967    0.0894]
+% xyz2rgb_custom(lab2xyz([20	61.5600157850150	68.3693239439203]) ,[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290])
+%       r_dark: [0.1430   0 0]
+% xyz2rgb_custom(lab2xyz([20	-81.2311785430213	43.1913837763020]) ,[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290])
+%       g_dark: [0	0.0488 0]
 
 
 % red + green [symmetric around 50 L value doesn't work]: rather 20 to 67 version 3: no chroma and/or hue changes
 p.stim.in_colors           = ...                           % "on" and "off" color for inlet (from background to to white) same brightnes as background on average
     {[0.7120    0.2373    0.1008 1; 0.0978    0.0036   0  1]; ... % color lightness flicker
     [ 0.1858    0.4583    0.1642 1;0.0019    0.0440    0.0003  1]};
-p.stim.in_colors           = ...                           % "on" and "off" color for inlet (from background to to white) same brightnes as background on average
-    {[0.7120    0.2373    0.1008 1; 0.0978    0.0036   0  1],  [1 1 1 1; 0 0 0 1]; ... % color lightness flicker
-    [ 0.1858    0.4583    0.1642 1;0.0019    0.0440    0.0003  1], [1 1 1 1; 0 0 0 1]};
 % how to pick colors: 
 % xyz2rgb_custom(lab2xyz([67 40.148 44.589]) ,[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290])
 %       r_bright: [0.7120    0.2373    0.1008]
@@ -183,7 +244,7 @@ p.trig.rec_start        = 253;                  % trigger to start recording
 p.trig.rec_stop         = 254;                  % trigger to stop recording
 p.trig.tr_start         = 77;                   % trial start; main experiment
 p.trig.tr_stop          = 88;                   % trial end; main experiment
-p.trig.tr_con_type      = [1 2 3 4 5 6]*10;     % condition type
+p.trig.tr_con_type      = [1 2 3 4]*10;         % condition type
 p.trig.type             = [1 2; 5 7];           % [first: target, distractor; second: target, distractor]
 p.trig.button           = 150;                   % button press
 p.trig.event_type       = [201 202];              % target, distractor
@@ -271,13 +332,13 @@ rng(p.sub,'v4')
 
 % assign colors
 RDK.RDK(1).col_init = RDK.RDK(1).col;
-RDK.RDK(2:12) = deal(RDK.RDK(1));
-t.col = repmat(p.stim.colors,6,1);
+RDK.RDK(2:8) = deal(RDK.RDK(1));
+t.col = repmat(p.stim.colors,4,1);
 [RDK.RDK(:).col_init] = deal(t.col{:});
 
 % assign flicker type
-[RDK.RDK(5:12).in_flag] = deal(1); % which onses are unconventional RDKs?
-[RDK.RDK(5:12).flicker_type] = deal('SSVEP_inlet'); % which onses are unconventional RDKs?
+[RDK.RDK(5:8).in_flag] = deal(1); % which onses are unconventional RDKs?
+[RDK.RDK(5:8).flicker_type] = deal('SSVEP_inlet'); % which onses are unconventional RDKs?
 
 % assign ID
 t.ids = num2cell(1:numel(RDK.RDK));
@@ -285,10 +346,8 @@ t.ids = num2cell(1:numel(RDK.RDK));
 
 % assign inlet color
 % [RDK.RDK(5:8).in_col] = deal(p.stim.in_colors);
-t.col = repmat(p.stim.in_colors(:,1),2,1); % inlet color flicker
+t.col = repmat(p.stim.in_colors,2,1);
 [RDK.RDK(5:8).in_col] = deal(t.col{:});
-t.col = repmat(p.stim.in_colors(:,2),2,1); % inlet bw flicker
-[RDK.RDK(9:12).in_col] = deal(t.col{:});
 
 
 % randomize frequencies for conventional RDKs
@@ -297,22 +356,15 @@ t.val = num2cell(p.stim.freqs{1}(randperm(2)));
 t.val = num2cell(p.stim.freqs{2}(randperm(2)));
 [RDK.RDK(3:4).freq] = t.val{:};
 
-% randomize frequencies for inlet colored flickering RDKs
+% randomize frequencies for inlet flickering RDKs
 t.val = num2cell(p.stim.in_freqs{1}(randperm(2)));
 [RDK.RDK(5:6).in_freq] = t.val{:};
 t.val = num2cell(p.stim.in_freqs{2}(randperm(2)));
 [RDK.RDK(7:8).in_freq] = t.val{:};
 
-% randomize frequencies for inlet colored flickering RDKs
-t.val = num2cell(p.stim.in_freqs{1}(randperm(2)));
-[RDK.RDK(9:10).in_freq] = t.val{:};
-t.val = num2cell(p.stim.in_freqs{2}(randperm(2)));
-[RDK.RDK(11:12).in_freq] = t.val{:};
-
-
 % assign colors
 [RDK.RDK(:).col] = deal(RDK.RDK(:).col_init);
-t.col = repmat(p.stim.color_names,6,1);
+t.col = repmat(p.stim.color_names,4,1);
 [RDK.RDK(:).colnames] = deal(t.col{:});
 p.isol.override = p.isol.override;
 p.isol.init_cols = cell2mat(cellfun(@(x) x(1,:),{RDK.RDK(:).col},'UniformOutput',false)');
@@ -329,7 +381,7 @@ p.isol.init_cols = cell2mat(cellfun(@(x) x(1,:),{RDK.RDK(:).col},'UniformOutput'
 % p.isol.init_cols = cell2mat(cellfun(@(x) x(1,:),{RDK.RDK(:).col},'UniformOutput',false)');
 
 % random position shift in periphery
-[RDK.RDK([3:4 7:8 11:12]).centershift] = deal(t.pos(p.sub,:));
+[RDK.RDK([3:4 7:8]).centershift] = deal(t.pos(p.sub,:));
 
 % initialize blank variables
 timing = []; button_presses = []; resp = []; randmat = [];
