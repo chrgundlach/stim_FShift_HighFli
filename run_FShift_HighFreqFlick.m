@@ -55,13 +55,15 @@ p.isol.TrlAdj           = 5;                    % number of trials used for isol
 p.isol.MaxStd           = 10;                   % standard deviation tolerated
 p.isol.run              = false;                % isoluminance run?
 
-
 % lower chroma hue: no issues with color inlet flicker; same hue + chroma possible for lum color flicker
 p.isol.override         = [0.432577043497251	0.114218717428981	0.0367378722759770 1; 0.0838243660856890	0.261212705167328	0.0719122665885031 1]; % these are the ones used for p.isol.bckgr = p.scr_color(1:3); [red + green]
 % plot_colorwheel([0.432577043497251	0.114218717428981	0.0367378722759770; 0.0838243660856890	0.261212705167328	0.0719122665885031],'ColorSpace','propixxrgb','LAB_L',50,'NumSegments',60,'AlphaColWheel',1,'LumBackground',100,'disp_LAB_vals',true)
 % color values:
 % Colors2plot: [0.433 0.114 0.037]; CIE L*a*b: [52.000 40.148 44.589]; color hue in °: [48.000]
 % Colors2plot: [0.084 0.261 0.072]; CIE L*a*b: [52.000 -52.977 28.168]; color hue in °: [152.000]
+
+% p.isol.init_cols        = [1 0.4 0 1; 0 1 0 1];
+p.isol.init_cols        = [p.isol.override(:,1:3).*(1./max(p.isol.override(:,1:3),[],2)) [1;1]] ;
 
 % p.isol.bckgr            = p.scr_color(1:3)+0.2;          % isoluminant to background or different color?
 p.isol.bckgr            = p.scr_color;          % isoluminant to background or different color?
@@ -103,7 +105,7 @@ RDK.RDK(1).mov_freq     = 120;                          % Defines how frequently
 RDK.RDK(1).num          = 85;                           % number of dots % 85
 RDK.RDK(1).mov_speed    = 1;                            % movement speed in pixel
 RDK.RDK(1).mov_dir      = [0 1; 0 -1; -1 0; 1 0];       % movement direction  [0 1; 0 -1; -1 0; 1 0] = up, down, left, right
-RDK.RDK(1).dot_size     = 10;                           % size of dots
+RDK.RDK(1).dot_size     = 10;                           % size of dots used to be 10
 RDK.RDK(1).shape        = 1;                            % 1 = square RDK; 0 = ellipse/circle RDK;
 RDK.RDK(1).in_flag      = 0;                            % display inlet?
 RDK.RDK(1).in_col       = [];                           % inlet color for on off
@@ -132,6 +134,14 @@ p.stim.in_freqs         = {[68 71];[62 65]};            % high inlet frequencies
 p.stim.colors           = ...                           % "on" and "off" color version 3 [green + red] color flicker with lum only changes from 20 to 52 to 67; not affecting hue + chroma
     {[0.432577043497251	0.114218717428981	0.0367378722759770 1; p.scr_color(1:3) 0];... % start with close to isoluminant
     [0.0838243660856890	0.261212705167328	0.0719122665885031 1; p.scr_color(1:3) 0]};
+
+
+% isoluminance adjustment
+% RDK1 [0.4078 0.1077 0.0346 1.0000]
+% RDK2 [0.0906 0.2824 0.0777 1.0000]
+% RDK3 [0.3922 0.1035 0.0333 1.0000]
+% RDK4 [0.0931 0.2902 0.0799 1.0000]
+% plot_colorwheel([0.4078 0.1077 0.0346; 0.0906 0.2824 0.0777],'ColorSpace','propixxrgb','LAB_L',50,'NumSegments',60,'AlphaColWheel',1,'LumBackground',100,'disp_LAB_vals',true)
 
 
 
@@ -275,6 +285,10 @@ RDK.RDK(2:12) = deal(RDK.RDK(1));
 t.col = repmat(p.stim.colors,6,1);
 [RDK.RDK(:).col_init] = deal(t.col{:});
 
+% % change size of RDK [we discussed but changed back]
+% [RDK.RDK(5:12).dot_size] = deal(RDK.RDK(1).dot_size+4); % increase size by 4
+% [RDK.RDK(5:12).in_dot_size] = deal(RDK.RDK(1).in_dot_size+4); % increase size by 4
+
 % assign flicker type
 [RDK.RDK(5:12).in_flag] = deal(1); % which onses are unconventional RDKs?
 [RDK.RDK(5:12).flicker_type] = deal('SSVEP_inlet'); % which onses are unconventional RDKs?
@@ -315,7 +329,7 @@ t.val = num2cell(p.stim.in_freqs{2}(randperm(2)));
 t.col = repmat(p.stim.color_names,6,1);
 [RDK.RDK(:).colnames] = deal(t.col{:});
 p.isol.override = p.isol.override;
-p.isol.init_cols = cell2mat(cellfun(@(x) x(1,:),{RDK.RDK(:).col},'UniformOutput',false)');
+p.isol.init_cols = repmat(p.isol.init_cols,2,1);
 
 
 
@@ -384,25 +398,20 @@ if flag_isolum == 1
 %     Datapixx('SetPropixxDlpSequenceProgram', 0);
 %     Datapixx('RegWrRd');
      
+    % initial colors
+    % p.isol.init_cols = cell2mat({RDK.RDK.col}'); p.isol.init_cols = p.isol.init_cols(1:2:end,1:3);
+    p.isol.init_cols = p.isol.init_cols(:,1:3);
     
-    
-    % % start isoluminance script only RGB output (no alpha) [for all colors]
-    % [Col2Use] = PRPX_IsolCol_480_adj(...
-    %     [p.isol.bckgr(1:3); p.isol.init_cols(:,1:3)],...
-    %     p.isol.TrlAdj,...
-    %     p.isol.MaxStd,...
-    %     cellfun(@(x) x(1), {RDK.RDK.centershift})',...
-    %     RDK.RDK(1).size);
     % start isoluminance script only RGB output (no alpha) [for only a few colors]
     [Col2Use] = PRPX_IsolCol_480_adj(...
-        [p.isol.bckgr(1:3); p.isol.init_cols(1:2,1:3)],...
+        [p.isol.bckgr(1:3); p.isol.init_cols(1:4,1:3)],...
         p.isol.TrlAdj,...
         p.isol.MaxStd,...
-        cellfun(@(x) x(1), {RDK.RDK(1:2).centershift})',...
-        [1 1].*max(RDK.RDK(1).size));
+        cellfun(@(x) x(1), {RDK.RDK(1:4).centershift})',...
+        RDK.RDK(1).size);
     
     for i_RDK = 1:numel(RDK.RDK)
-        RDK.RDK(i_RDK).col(1,:) = [Col2Use(2+mod(i_RDK+1,2),:) 1];
+        RDK.RDK(i_RDK).col(1,:) = [Col2Use(2+mod(i_RDK+3,4),:) 1];
     end
     % index function execution
     p.isol.run = sprintf('originally run: %s',datestr(now));
@@ -424,7 +433,7 @@ else
     % specify options
     % option1: use default values
     isol.opt(1).available = true;
-    t.cols = cell2mat({RDK.RDK(1:2).col}');
+    t.cols = cell2mat({RDK.RDK(1:4).col}');
     isol.opt(1).colors = t.cols(1:2:end,:);
     isol.opt(1).text = sprintf('default: %s',sprintf('[%1.2f %1.2f %1.2f] ',isol.opt(1).colors(:,1:3)'));
     % option2: use isoluminance values of previously saved dataset
@@ -447,7 +456,7 @@ else
     % option3: use manual override
     if ~isempty(p.isol.override)
         isol.opt(3).available = true;
-        isol.opt(3).colors = p.isol.override;
+        isol.opt(3).colors = repmat(p.isol.override,2,1);
         isol.opt(3).text = sprintf('manuell definiert in p.isol override: %s',sprintf('[%1.2f %1.2f %1.2f] ',isol.opt(3).colors(:,1:3)'));
     else
         isol.opt(3).available = false;
@@ -493,6 +502,18 @@ else
     for i_col = 1:size(p.isol.coladj,1)
         fprintf('RDK%1.0f [%1.4f %1.4f %1.4f %1.4f]\n', i_col,p.isol.coladj(i_col,:))
     end
+end
+
+%% adjust color inlet flicker according to isoluminance adjustment
+for i_rdk = 5:8
+    % what are the LAB values for this color?
+    t.col_LAB = xyz2lab(rgb2xyz_custom(RDK.RDK(i_rdk).col(1,1:3),[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290]));
+    % new cols are defined by change in luminance
+    t.lumchange = [15 -32];
+    t.col_LAB_formods = repmat(t.col_LAB,2,1) + [t.lumchange' zeros(2,2)];
+    t.col_RGB_formods = xyz2rgb_custom(lab2xyz(t.col_LAB_formods),[0.665 0.321], [0.172 0.726], [0.163 0.039], [0.3127 0.3290]);
+    t.col_RGB_formods(t.col_RGB_formods<0)=0;
+    RDK.RDK(i_rdk).in_col = [t.col_RGB_formods [1;1]];
 end
 
 %% redo initialization

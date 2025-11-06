@@ -22,3 +22,5 @@
 [width,height]=ERP_visualangle([360 360].*2,120,[1920 1080],[63.5 35])
 [width,height]=ERP_visualangle([12 12].*2,120,[1920 1080],[63.5 35])
 [width,height]=ERP_visualangle([1 1].*2,120,[1920 1080],[63.5 35])
+
+[width,height]=ERP_visualangle([8 8].*2,120,[1920 1080],[63.5 35])
