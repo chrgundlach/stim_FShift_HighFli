@@ -86,7 +86,7 @@ p.stim.trialnum_t       = 20;               % trial number in training
 p.stim.time_postcue     = 2;                % post.cue time in s
 p.stim.time_precue      = [1.5 2];          % precue time in s; [upper lower] for randomization
 p.stim.event.type       = 2;                % types of events (1 = targets only, 2 = targets + distrators)
-p.stim.event.length     = 0.3;              % lengt of events in s
+p.stim.event.length     = 0.2;              % lengt of events in s
 p.stim.event.min_onset  = 0.2;              % min post-cue time before event onset in s
 p.stim.event.min_offset = 0;                % min offset from target end to end of trial in s
 p.stim.event.min_dist   = 0.8;              % min time between events in s
